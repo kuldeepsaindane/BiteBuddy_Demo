@@ -1,28 +1,38 @@
 pipeline {
     agent any
-    
+
+    environment {
+        REPO_URL = 'https://github.com/kuldeepsaindane/BiteBuddy_Demo.git'  // Replace with your repo URL
+    }
+
     stages {
-        stage('Clone Repository') {
+        stage('Checkout Repository') {
             steps {
-                git 'https://github.com/BiteBuddy_Demo.git'  // Replace with your repository URL
+                // Clone the repository
+                git url: "$REPO_URL", branch: 'main'  // Replace with your branch if necessary
             }
         }
 
-        stage('Build') {
+        stage('Install Nginx') {
             steps {
-                sh 'echo Building project...'  // Replace with your build command
+                // Install Nginx on the agent (if necessary)
+                sh 'sudo apt update -y && sudo apt install -y nginx'
             }
         }
 
-        stage('Test') {
+        stage('Copy index.html to Web Directory') {
             steps {
-                sh 'echo Running tests...'  // Replace with your test command
+                // Copy the index.html file to the Nginx root directory
+                sh 'sudo cp index.html /var/www/html/index.html'
             }
         }
 
-        stage('Deploy') {
+        stage('Start Nginx Server') {
             steps {
-                sh 'echo Deploying application...'  // Replace with your deploy command
+                // Start Nginx server
+                sh 'sudo systemctl start nginx'
+                // Ensure Nginx is enabled to start on boot
+                sh 'sudo systemctl enable nginx'
             }
         }
     }
